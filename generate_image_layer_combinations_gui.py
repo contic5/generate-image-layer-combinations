@@ -33,7 +33,7 @@ class Image_Combinations_GUI(tk.Tk):
         
         if folder_location:
             print("Selected folder:", folder_location)
-            generate_image_background_combinations(Path(folder_location),self.named_output.get())
+            generate_image_layer_combinations(Path(folder_location),self.named_output.get())
         else:
             print("No folder selected.") 
 
