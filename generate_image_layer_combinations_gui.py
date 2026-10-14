@@ -14,6 +14,10 @@ class Image_Combinations_GUI(tk.Tk):
         self.label = ttk.Label(self, text='Upload a folder with subfolders named "images" and "backgrounds". The program will generate combinations of backgrounds and images.',wraplength=300,font=("Arial",12),justify="center")
         self.label.pack()
 
+        self.named_output=tk.BooleanVar(value=True)
+        self.named_output_button=ttk.Checkbutton(self,text="Write named output.",variable=self.named_output)
+        self.named_output_button.pack()
+
         self.results_label=ttk.Label(self,text="Ready to generate images",font=("Arial",18),wraplength=300,justify="center")
         self.results_label.pack()
 
@@ -29,7 +33,7 @@ class Image_Combinations_GUI(tk.Tk):
         
         if folder_location:
             print("Selected folder:", folder_location)
-            generate_image_layer_combinations(Path(folder_location))
+            generate_image_background_combinations(Path(folder_location),self.named_output.get())
         else:
             print("No folder selected.") 
 

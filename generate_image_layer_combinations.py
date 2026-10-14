@@ -5,39 +5,49 @@ from PIL import Image, ImageFilter
 from pathlib import Path
 
 def generate_image_layer_combinations(folder_path:Path,named_output=True):
-    print(folder_path)
+    print(folder_path,named_output)
 
-    backgrounds_path = Path(f'{folder_path}/backgrounds')
-    images_path=Path(f'{folder_path}/images')
-    background_index=1
-    for background_file in backgrounds_path.iterdir():
-        image_index=1
-        for image_file in images_path.iterdir():
+    front_images=[]
+    back_images=[]
+    front_back_combinations=[]
+
+    back_images_path = Path(f'{folder_path}/back_images')
+    front_images_path=Path(f'{folder_path}/front_images')
+    back_image_index=1
+    for back_image_file in back_images_path.iterdir():
+        front_image_index=1
+        front_back_combinations.append([])
+
+        for front_image_file in front_images_path.iterdir():
             try:
-                img=Image.open(str(image_file))
-                background=Image.open(str(background_file))
+                front_img=Image.open(str(front_image_file))
+                back_img=Image.open(str(back_image_file))
 
-                min_width=min(img.width,background.width)
-                min_height=min(img.height,background.height)
+                min_width=min(front_img.width,back_img.width)
+                min_height=min(front_img.height,back_img.height)
 
-                img=img.resize((min_width,min_height))
-                background=background.resize((min_width,min_height))
+                front_img=front_img.resize((min_width,min_height))
+                back_img=back_img.resize((min_width,min_height))
 
-                img_RGBA=img.convert("RGBA")
-                background_RGBA=background.convert("RGBA")
+                front_img_RGBA=front_img.convert("RGBA")
+                back_img_RGBA=back_img.convert("RGBA")
+                front_images.append(front_img_RGBA)
+                back_images.append(back_img_RGBA)
 
-                combined_image=Image.alpha_composite(background_RGBA,img_RGBA)
-                output_file_name=f"output/image_{image_index}_background_{background_index}.png"
+                combined_image=Image.alpha_composite(back_img_RGBA,front_img_RGBA)
+                front_back_combinations.append(combined_image)
+                
+                output_file_name=f"output/front__{front_image_index}_back_{back_image_index}.png"
                 if named_output:
-                    output_file_name=f"output/{image_file.name}_{background_file.name}"
+                    output_file_name=f"output/{front_image_file.name}_{back_image_file.name}"
                 print(f"Saved {output_file_name}")
                 combined_image.save(output_file_name)
             except ValueError:
-                print(img_RGBA.size)
-                print(background_RGBA.size)
+                print(front_img_RGBA.size)
+                print(back_img_RGBA.size)
             finally:
-                image_index+=1
-        background_index+=1
+                front_image_index+=1
+        back_image_index+=1
 
 if __name__=="__main__":
     generate_image_layer_combinations(Path("input"))
