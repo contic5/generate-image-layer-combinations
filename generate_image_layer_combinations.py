@@ -4,13 +4,13 @@
 from PIL import Image, ImageFilter
 from pathlib import Path
 
-def make_merged_image(front_images,back_images,front_back_combinations):
+def make_merged_image(front_images,back_images,front_back_combinations,padding=0):
     image_width=front_images[-1].width
     image_height=back_images[-1].height
 
     print("Merging Images")
-    max_width=(len(front_images)+1)*image_width
-    max_height=(len(back_images)+1)*image_height
+    max_width=(len(front_images)+1)*(image_width)+(len(front_images)+2)*padding
+    max_height=(len(back_images)+1)*(image_height)+(len(back_images)+2)*padding
     print(max_width,max_height)
 
     merged_image = Image.new('RGB', (max_width, max_height), color=(255, 255, 255))
@@ -19,19 +19,20 @@ def make_merged_image(front_images,back_images,front_back_combinations):
     for i in range(len(back_images)):
         back_image_plus_background=Image.alpha_composite(blank_background, back_images[i])
         print(f"Back Image {i}")
-        y=(i+1)*image_height
-        merged_image.paste(back_image_plus_background,(0,y))
+        y=(i+1)*(image_height)+(i+2)*padding
+        merged_image.paste(back_image_plus_background,(padding,y))
 
     for j in range(len(front_images)):
         front_image_plus_background=Image.alpha_composite(blank_background, front_images[j])
         print(f"Front Image {j}")
-        merged_image.paste(front_image_plus_background,((j+1)*image_width,0))
+        x=(j+1)*(image_width)+(j+2)*padding
+        merged_image.paste(front_image_plus_background,(x,padding))
     merged_image.save("example_output/merged_images/merged_images_part_1.png")
 
     for i in range(len(front_back_combinations)):
         for j in range(len(front_back_combinations[0])):
-            x=(j+1)*image_width
-            y=(i+1)*image_height
+            x=(j+1)*(image_width)+(j+2)*padding
+            y=(i+1)*(image_height)+(i+2)*padding
             merged_image.paste(front_back_combinations[i][j],(x,y))
 
     merged_image.save("example_output/merged_images/merged_images_part_2.png")
@@ -84,9 +85,9 @@ def generate_image_layer_combinations(folder_path:Path,named_output=True):
                 combined_image=Image.alpha_composite(back_img,front_img)
                 front_back_combinations[-1].append(combined_image)
 
-                output_file_name=f"example_output/front__{front_image_index}_back_{back_image_index}.png"
+                output_file_name=f"example_output/combinations/front__{front_image_index}_back_{back_image_index}.png"
                 if named_output:
-                    output_file_name=f"example_output/{front_image_file.stem}_{back_image_file.stem}.png"
+                    output_file_name=f"example_output/combinations/{front_image_file.stem}_{back_image_file.stem}.png"
                 combined_image.save(output_file_name)
                 print(f"Saved {output_file_name}")
             except ValueError:
